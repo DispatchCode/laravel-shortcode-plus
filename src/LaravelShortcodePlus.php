@@ -15,7 +15,7 @@ final class LaravelShortcodePlus
 {
     public static function css(): string
     {
-        return '<link rel="stylesheet" href="'.route('shortcode-plus.css').'">';
+        return '<link rel="stylesheet" href="' . route('shortcode-plus.css') . '">';
     }
 
     public static function source(string $source): static
@@ -29,6 +29,9 @@ final class LaravelShortcodePlus
 
     public function parseAll(): string
     {
+        $parser = new Parsers\Parser();
+        dd($parser);
+
         $this->content = $this->parseFacebookTag();
         $this->content = $this->parseTwitterTag();
         $this->content = $this->parseYoutubeTag();

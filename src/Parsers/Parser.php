@@ -1,0 +1,170 @@
+<?php
+
+namespace Murdercode\LaravelShortcodePlus\Parsers;
+
+class Parser
+{
+    private $dynamic_shortcode_conf;
+    private $shortcodes;
+
+    public function __construct()
+    {
+        $this->dynamic_shortcode_conf = config('shortcode-plus.dynamic_shortcode');
+        $this->shortcodes = array_keys($this->dynamic_shortcode_conf);
+    }
+    /*
+    public function parseText(string $text)
+    {
+        $pattern1 = '/\[(' . implode('|', $this->shortcodes) . ')\s([^\]]*)\]/';
+        $pattern2 = '/\[(' . implode('|', $this->shortcodes) . ')\s([^\]]*)\]([^\[]*)\[\/\1\]/';
+
+        $text = preg_replace_callback($pattern2, function ($matches)
+        {
+            $shortcode_name = $matches[1];
+            $params = $matches[2];
+            $content = $matches[3];
+
+            return "TEST2";
+        }, $text);
+
+        $text = preg_replace_callback($pattern1, function ($matches)
+        {
+            $shortcode_name = $matches[1];
+            $params = $matches[2];
+
+            return "TEST1";
+        }, $text);
+
+        return $text;
+    }*/
+
+
+    private function searchMatchedConfig(array|null $params, array $config)
+    {
+        $keys = $params ? array_keys($params) : [];
+
+        $matched_config = [];
+        foreach ($config['types'] as $key => $type)
+        {
+            $matched = true;
+            foreach ($type['options'] as $option => $type)
+            {
+                if (!in_array($option, $keys) && str_contains($type, 'required'))
+                {
+                    $matched = false;
+                    break;
+                }
+            }
+
+            if ($matched)
+            {
+                $matched_config = $config['types'][$key];
+                break;
+            }
+        }
+
+        return $matched_config;
+    }
+
+    private function parseArguments(string $args)
+    {
+        $pattern = '/(\w+)=(["\'])(.*?)\2/';
+        preg_match_all($pattern, $args, $matches);
+
+        $params_map = [];
+        foreach ($matches[1] as $key => $param_name)
+        {
+            $params_map[$param_name] = $matches[3][$key];
+        }
+
+        return $params_map;
+    }
+
+    private function castArguments(array &$params, array $config)
+    {
+        foreach ($config as $key => $type)
+        {
+            if (str_contains($type, 'integer'))
+            {
+                $params[$key] = (int) $params[$key];
+            }
+            else if (str_contains($type, 'boolean'))
+            {
+                $params[$key] = (bool) $params[$key];
+            }
+        }
+    }
+
+    public function replaceWithContent(string $shortcode, array $params, string $content = null)
+    {
+        switch ($shortcode)
+        {
+            case 'image':
+                return Image::parse($params); // TODO image parser must be updated
+            case 'spoiler':
+                return Spoiler::parse($params, $content);
+            case 'faq':
+                return Faq::parse($params, $content);
+                // TODO add more parsers
+            default:
+                // TODO  throw exception, invalid shortcode
+        }
+    }
+
+    public function parseText(string $text)
+    {
+        while (($square_pos = strpos($text, '[')) !== false)
+        {
+            preg_match('/\[([^\s\]]+)/', $text, $matches);
+            $shortcode = $matches[1] ?? null;
+
+            // If the word is a shortcode
+            if (in_array($shortcode, $this->shortcodes))
+            {
+                $config = $this->dynamic_shortcode_conf[$shortcode];
+
+                preg_match('/\[(' . $shortcode . ')\s?([^\]]*)\]/', $text, $matches);
+
+                $params = $this->parseArguments($matches[2]) ?? null;
+
+                $matched_config = $this->searchMatchedConfig($params, $config);
+
+                // Check if params match the config
+                if (empty($matched_config))
+                {
+                    $text = str_replace($matches[0], '', $text);
+                    continue;
+                }
+
+                var_dump($matched_config);
+
+                $this->castArguments($params, $matched_config['options']);
+
+                var_dump($params);
+
+                // Replace the shortcode with the parsed content
+                // TODO check based on type, if content is required or not
+                if ($matched_config["content"])
+                {
+                    // Get the shortcode content
+                    $square_close_pos = strpos($text, ']', $square_pos);
+                    $content = substr($text, $square_close_pos + 1, strpos($text, '[/' . $shortcode . ']', $square_close_pos) - $square_close_pos - 1);
+
+                    $text = str_replace($matches[0] . $content . '[/' . $shortcode . ']', $this->replaceWithContent($shortcode, $params, $content), $text);
+
+
+                    // TODO  parse based on shortcode type
+                }
+                else
+                {
+                    $text = str_replace($matches[0], $this->replaceWithContent($shortcode, $params), $text);
+
+                    //$text = preg_replace('/\[(' . $shortcode . ')\s([^\]]*)\]/', $this->replaceWithContent($shortcode, $params), $text, 1);
+
+                }
+            }
+        }
+
+        return $text;
+    }
+}
