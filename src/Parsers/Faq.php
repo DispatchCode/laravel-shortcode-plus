@@ -8,8 +8,7 @@ class Faq
 {
     public static function parse(array $params, string $content): string
     {
-
-        $title = $params["title"] ? Sanitizer::escapeQuotes($params["title"]) : __(
+        $title = $params['title'] ? Sanitizer::escapeQuotes($params['title']) : __(
             'Show hidden content'
         );
         $content = $content ?? '';

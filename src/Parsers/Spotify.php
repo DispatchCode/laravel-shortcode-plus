@@ -8,8 +8,7 @@ class Spotify
     {
         $content = $params['url'] ?? $params['uri'] ?? null;
 
-        if (isset($params['uri']))
-        {
+        if (isset($params['uri'])) {
             return self::parseWithUri($content);
         }
 
@@ -21,8 +20,7 @@ class Spotify
         $uri = str_contains($uri, 'spotify') ? $uri : null;
         $url = $uri ? self::getUrlFromUri($uri) : null;
 
-        if ($url)
-        {
+        if ($url) {
             return view('shortcode-plus::spotify', ['url' => $url]);
         }
 
@@ -34,8 +32,7 @@ class Spotify
         $url = str_contains($url, 'spotify') ? $url : null;
         $url = $url ? self::getUrlFromUrl($url) : null;
 
-        if ($url)
-        {
+        if ($url) {
             return view('shortcode-plus::spotify', ['url' => $url]);
         }
 
@@ -49,7 +46,7 @@ class Spotify
         $type = $uri[0] ?? null;
         $id = $uri[1] ?? null;
 
-        return 'https://open.spotify.com/embed/' . $type . '/' . $id;
+        return 'https://open.spotify.com/embed/'.$type.'/'.$id;
     }
 
     private static function getUrlFromUrl(string $url): string
@@ -59,6 +56,6 @@ class Spotify
         $type = $url[0] ?? null;
         $id = $url[1] ?? null;
 
-        return 'https://open.spotify.com/embed/' . $type . '/' . $id;
+        return 'https://open.spotify.com/embed/'.$type.'/'.$id;
     }
 }

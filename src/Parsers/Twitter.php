@@ -6,12 +6,10 @@ class Twitter
 {
     public static function parse(array $params): string
     {
-
         $url = $params['url'] ?? null;
         $url = str_contains($url, 'twitter.com') ? $url : null;
 
-        if ($url)
-        {
+        if ($url) {
             $html = str_contains($url, 'twitter.com') ? self::getOembed($url) : null;
 
             return view('shortcode-plus::twitter', ['html' => $html])->render();

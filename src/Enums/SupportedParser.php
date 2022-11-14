@@ -14,7 +14,6 @@ enum SupportedParser: string
     case SPOTIFY = 'spotify';
     case GALLERY = 'gallery';
 
-
     public function getSupportedParser(): array
     {
         return self::cases();

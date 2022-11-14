@@ -6,10 +6,8 @@ class Facebook
 {
     public static function parse(array $params): string
     {
-
-        $url = str_contains($params["url"], 'facebook.com') ? $params["url"] : null;
-        if ($url)
-        {
+        $url = str_contains($params['url'], 'facebook.com') ? $params['url'] : null;
+        if ($url) {
             return view('shortcode-plus::facebook', compact('url'))->render();
         }
 
