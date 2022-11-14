@@ -2,10 +2,12 @@
 
 namespace Murdercode\LaravelShortcodePlus;
 
+use Murdercode\LaravelShortcodePlus\Enums\SupportedParser;
 use Murdercode\LaravelShortcodePlus\Parsers\Facebook;
 use Murdercode\LaravelShortcodePlus\Parsers\Faq;
 use Murdercode\LaravelShortcodePlus\Parsers\Gallery;
 use Murdercode\LaravelShortcodePlus\Parsers\Image;
+use Murdercode\LaravelShortcodePlus\Parsers\Parser;
 use Murdercode\LaravelShortcodePlus\Parsers\Spoiler;
 use Murdercode\LaravelShortcodePlus\Parsers\Spotify;
 use Murdercode\LaravelShortcodePlus\Parsers\Twitter;
@@ -29,16 +31,8 @@ final class LaravelShortcodePlus
 
     public function parseAll(): string
     {
-        $parser = new Parsers\Parser();
-        dd($parser);
-
-        $this->content = $this->parseFacebookTag();
-        $this->content = $this->parseTwitterTag();
-        $this->content = $this->parseYoutubeTag();
-        $this->content = $this->parseSpotifyTag();
-        $this->content = $this->parseFaqTag();
-        $this->content = $this->parseSpoilerTag();
-        $this->content = $this->parseImageTag();
+        $this->content = Parser::parse($this->content, SupportedParser::ALL);
+        dd($this->content);
         $this->content = $this->parseGalleryTag();
 
         return $this->content;
@@ -46,41 +40,41 @@ final class LaravelShortcodePlus
 
     public function parseTwitterTag(): string
     {
-        return Twitter::parse($this->content);
+        return Parser::parse($this->content, SupportedParser::TWITTER);
     }
 
     public function parseYoutubeTag(): string
     {
-        return Youtube::parse($this->content);
+        return Parser::parse($this->content, SupportedParser::YOUTUBE);
     }
 
     public function parseSpotifyTag(): string
     {
-        return Spotify::parse($this->content);
+        return Parser::parse($this->content, SupportedParser::SPOTIFY);
     }
 
     public function parseFaqTag(): string
     {
-        return Faq::parse($this->content);
+        return Parser::parse($this->content, SupportedParser::FAQ);
     }
 
     public function parseSpoilerTag(): string
     {
-        return Spoiler::parse($this->content);
+        return Parser::parse($this->content, SupportedParser::SPOILER);
     }
 
     public function parseFacebookTag(): string
     {
-        return Facebook::parse($this->content);
+        return Parser::parse($this->content, SupportedParser::FACEBOOK);
     }
 
     public function parseImageTag(): string
     {
-        return Image::parse($this->content);
+        return Parser::parse($this->content, SupportedParser::IMAGE);
     }
 
     public function parseGalleryTag(): string
     {
-        return Gallery::parse($this->content);
+        return Parser::parse($this->content, SupportedParser::GALLERY);
     }
 }

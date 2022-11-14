@@ -2,6 +2,8 @@
 
 namespace Murdercode\LaravelShortcodePlus\Parsers;
 
+use Murdercode\LaravelShortcodePlus\Enums\SupportedParser;
+
 class Parser
 {
     private $dynamic_shortcode_conf;
@@ -12,32 +14,6 @@ class Parser
         $this->dynamic_shortcode_conf = config('shortcode-plus.dynamic_shortcode');
         $this->shortcodes = array_keys($this->dynamic_shortcode_conf);
     }
-    /*
-    public function parseText(string $text)
-    {
-        $pattern1 = '/\[(' . implode('|', $this->shortcodes) . ')\s([^\]]*)\]/';
-        $pattern2 = '/\[(' . implode('|', $this->shortcodes) . ')\s([^\]]*)\]([^\[]*)\[\/\1\]/';
-
-        $text = preg_replace_callback($pattern2, function ($matches)
-        {
-            $shortcode_name = $matches[1];
-            $params = $matches[2];
-            $content = $matches[3];
-
-            return "TEST2";
-        }, $text);
-
-        $text = preg_replace_callback($pattern1, function ($matches)
-        {
-            $shortcode_name = $matches[1];
-            $params = $matches[2];
-
-            return "TEST1";
-        }, $text);
-
-        return $text;
-    }*/
-
 
     private function searchMatchedConfig(array|null $params, array $config)
     {
@@ -105,18 +81,34 @@ class Parser
                 return Spoiler::parse($params, $content);
             case 'faq':
                 return Faq::parse($params, $content);
-                // TODO add more parsers
+            case 'facebook':
+                return Facebook::parse($params);
+            case 'twitter':
+                return Twitter::parse($params);
+            case 'youtube':
+                return Youtube::parse($params);
+            case 'spotify':
+                return Spotify::parse($params);
+            case 'gallery':
+                return Gallery::parse($params, $content);
+
             default:
                 // TODO  throw exception, invalid shortcode
         }
     }
 
-    public function parseText(string $text)
+    private function parseText(string $text, string $searched_shortcode = '')
     {
-        while (($square_pos = strpos($text, '[')) !== false)
+        // str_contains
+
+        while (($square_pos = strpos($text, '[' . $searched_shortcode)) !== false)
         {
-            preg_match('/\[([^\s\]]+)/', $text, $matches);
-            $shortcode = $matches[1] ?? null;
+            $shortcode = $searched_shortcode;
+            if ($searched_shortcode == '')
+            {
+                preg_match('/\[([^\s\]]+)/', $text, $matches);
+                $shortcode = $matches[1] ?? null;
+            }
 
             // If the word is a shortcode
             if (in_array($shortcode, $this->shortcodes))
@@ -125,25 +117,17 @@ class Parser
 
                 preg_match('/\[(' . $shortcode . ')\s?([^\]]*)\]/', $text, $matches);
 
-                $params = $this->parseArguments($matches[2]) ?? null;
+                $params = $this->parseArguments($matches[2] ?? '');
 
                 $matched_config = $this->searchMatchedConfig($params, $config);
-
-                // Check if params match the config
                 if (empty($matched_config))
                 {
                     $text = str_replace($matches[0], '', $text);
                     continue;
                 }
 
-                var_dump($matched_config);
-
                 $this->castArguments($params, $matched_config['options']);
 
-                var_dump($params);
-
-                // Replace the shortcode with the parsed content
-                // TODO check based on type, if content is required or not
                 if ($matched_config["content"])
                 {
                     // Get the shortcode content
@@ -151,20 +135,21 @@ class Parser
                     $content = substr($text, $square_close_pos + 1, strpos($text, '[/' . $shortcode . ']', $square_close_pos) - $square_close_pos - 1);
 
                     $text = str_replace($matches[0] . $content . '[/' . $shortcode . ']', $this->replaceWithContent($shortcode, $params, $content), $text);
-
-
-                    // TODO  parse based on shortcode type
                 }
                 else
                 {
                     $text = str_replace($matches[0], $this->replaceWithContent($shortcode, $params), $text);
-
-                    //$text = preg_replace('/\[(' . $shortcode . ')\s([^\]]*)\]/', $this->replaceWithContent($shortcode, $params), $text, 1);
-
                 }
             }
         }
-
         return $text;
+    }
+
+    public static function parse(string $text, SupportedParser $supportedParser = SupportedParser::ALL)
+    {
+        $parser = new self();
+        $type = $supportedParser->value;
+
+        return $parser->parseText($text, $type);
     }
 }

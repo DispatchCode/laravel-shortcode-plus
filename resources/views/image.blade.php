@@ -4,7 +4,7 @@
         {{ $credits }}
     </span>
     <figure>
-        <img class="mx-auto" src="{{ asset('storage/' . $path) }}" alt="{{ $alternative_text }}"
+        <img class="mx-auto" src="{{ $path }}" alt="{{ $alternative_text }}"
             title="{{ $title }}" loading="lazy" width="{{ $width }}" height="{{ $height }}" />
         <figcaption>{!! $caption !!}</figcaption>
     </figure>

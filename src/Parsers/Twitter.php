@@ -4,23 +4,20 @@ namespace Murdercode\LaravelShortcodePlus\Parsers;
 
 class Twitter
 {
-    public static function parse(string $content): string
+    public static function parse(array $params): string
     {
-        return preg_replace_callback(
-            '/\[twitter url="(.*?)"]/',
-            function ($matches) {
-                $url = $matches[1] ?? null;
-                $url = str_contains($url, 'twitter.com') ? $url : null;
 
-                if ($url) {
-                    $html = str_contains($url, 'twitter.com') ? self::getOembed($url) : null;
+        $url = $params['url'] ?? null;
+        $url = str_contains($url, 'twitter.com') ? $url : null;
 
-                    return view('shortcode-plus::twitter', ['html' => $html])->render();
-                }
+        if ($url)
+        {
+            $html = str_contains($url, 'twitter.com') ? self::getOembed($url) : null;
 
-                return 'No twitter URL defined';
-            }, $content
-        );
+            return view('shortcode-plus::twitter', ['html' => $html])->render();
+        }
+
+        return 'No twitter URL defined';
     }
 
     private static function getOembed(string $url): string|null

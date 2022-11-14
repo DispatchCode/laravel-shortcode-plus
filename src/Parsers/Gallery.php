@@ -7,22 +7,16 @@ use Murdercode\LaravelShortcodePlus\Helpers\Sanitizer;
 
 class Gallery
 {
-    public static function parse(string $content): string
+    public static function parse(array $params): string
     {
-        return preg_replace_callback(
-            '/\[gallery title="(.*?)" images="(.*?)"\]/',
-            function ($matches) {
-                $title = Sanitizer::escapeQuotes($matches[1]);
+        $title = Sanitizer::escapeQuotes($params['title']);
 
-                $imagesArray = explode(',', $matches[2]);
+        $imagesArray = explode(',', $params['images']);
 
-                $model = new ModelHelper('image');
-                $images = $model->getModelClass()::whereIn('id', $imagesArray)->get()->toArray();
+        $model = new ModelHelper('image');
+        $images = $model->getModelClass()::whereIn('id', $imagesArray)->get()->toArray();
 
-                return view('shortcode-plus::gallery', compact('title', 'images'))
-                    ->render();
-            },
-            $content
-        );
+        return view('shortcode-plus::gallery', compact('title', 'images'))
+            ->render();
     }
 }

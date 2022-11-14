@@ -4,27 +4,23 @@ namespace Murdercode\LaravelShortcodePlus\Parsers;
 
 class Youtube
 {
-    public static function parse(string $content): string
+    public static function parse(array $params): string
     {
-        return preg_replace_callback(
-            '/\[youtube url="(.*?)"]/',
-            function ($matches) {
-                $url = $matches[1] ?? null;
-                $url = str_contains($url, 'youtube.com') ? $url : null;
-                preg_match('/youtube.com\/watch\?v=(.*)/', $url, $matches);
 
-                $youtubeId = $matches[1] ?? null;
+        $url = $params["url"] ?? null;
+        $url = str_contains($url, 'youtube.com') ? $url : null;
+        preg_match('/youtube.com\/watch\?v=(.*)/', $url, $matches);
 
-                if ($youtubeId) {
-                    return view(
-                        'shortcode-plus::youtube',
-                        ['youtubeId' => $youtubeId]
-                    )->render();
-                }
+        $youtubeId = $matches[1] ?? null;
 
-                return 'No youtube URL defined';
-            },
-            $content
-        );
+        if ($youtubeId)
+        {
+            return view(
+                'shortcode-plus::youtube',
+                ['youtubeId' => $youtubeId]
+            )->render();
+        }
+
+        return 'No youtube URL defined';
     }
 }
