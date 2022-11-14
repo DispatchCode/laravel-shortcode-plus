@@ -102,14 +102,14 @@ class Parser
         $pattern = '/\[(' . implode('|', $this->shortcodes) . ')(.*?)\]/s';
         preg_match_all($pattern, $text, $matches);
 
-        return count($matches[0]);
+        return count($matches[0] ?? []);
     }
 
     private function parseText(string $text, string $searched_shortcode = '')
     {
         $n_shortcode = $this->countShortcode($text);
 
-        while (($square_pos = strpos($text, '[' . $searched_shortcode)) !== false && $n_shortcode--)
+        while ($n_shortcode--)
         {
             $shortcode = $searched_shortcode;
             if ($searched_shortcode == '')
@@ -137,11 +137,15 @@ class Parser
 
                 if ($matched_config["content"])
                 {
-                    // Get the shortcode content
-                    $square_close_pos = strpos($text, ']', $square_pos);
-                    $content = substr($text, $square_close_pos + 1, strpos($text, '[/' . $shortcode . ']', $square_close_pos) - $square_close_pos - 1);
+                    preg_match('/\[(' . $shortcode . ')\s?([^\]]*)\](.*?)\[\/\1\]/s', $text, $matches);
 
-                    $text = str_replace($matches[0] . $content . '[/' . $shortcode . ']', $this->replaceWithContent($shortcode, $params, $content), $text);
+                    $content = $matches[3] ?? '';
+
+                    $text = str_replace(
+                        $matches[0] ?? '',
+                        $this->replaceWithContent($shortcode, $params, $content),
+                        $text
+                    );
                 }
                 else
                 {
