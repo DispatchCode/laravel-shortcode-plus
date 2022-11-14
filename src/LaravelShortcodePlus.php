@@ -32,8 +32,6 @@ final class LaravelShortcodePlus
     public function parseAll(): string
     {
         $this->content = Parser::parse($this->content, SupportedParser::ALL);
-        dd($this->content);
-        $this->content = $this->parseGalleryTag();
 
         return $this->content;
     }

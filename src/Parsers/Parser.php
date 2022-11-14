@@ -97,11 +97,19 @@ class Parser
         }
     }
 
+    private function countShortcode(string $text)
+    {
+        $pattern = '/\[(' . implode('|', $this->shortcodes) . ')(.*?)\]/s';
+        preg_match_all($pattern, $text, $matches);
+
+        return count($matches[0]);
+    }
+
     private function parseText(string $text, string $searched_shortcode = '')
     {
-        // str_contains
+        $n_shortcode = $this->countShortcode($text);
 
-        while (($square_pos = strpos($text, '[' . $searched_shortcode)) !== false)
+        while (($square_pos = strpos($text, '[' . $searched_shortcode)) !== false && $n_shortcode--)
         {
             $shortcode = $searched_shortcode;
             if ($searched_shortcode == '')
@@ -122,7 +130,6 @@ class Parser
                 $matched_config = $this->searchMatchedConfig($params, $config);
                 if (empty($matched_config))
                 {
-                    $text = str_replace($matches[0], '', $text);
                     continue;
                 }
 

@@ -25,7 +25,7 @@ class Image
         else
         {
             $id_image = $params['id'];
-            $caption = $params['caption'] ? Sanitizer::escapeQuotes($params['caption']) : null;
+            $caption = isset($params['caption']) ? Sanitizer::escapeQuotes($params['caption']) : null;
 
             $model = new ModelHelper('image');
             $image = $model->getModelClass()::find($id_image);

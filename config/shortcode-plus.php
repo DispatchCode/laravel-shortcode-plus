@@ -26,7 +26,7 @@ return [
                 [
                     'content' => false,
                     'options' => [
-                        'caption' => 'string|required',
+                        'caption' => 'string|optional',
                         'id' => 'integer|required',
                     ],
                 ],
