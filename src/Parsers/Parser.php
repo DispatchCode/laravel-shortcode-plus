@@ -26,48 +26,33 @@ class Parser
 
     private function parseText(string $text, string $searched_shortcode = '')
     {
-        $n_shortcode = $this->countShortcode($text);
+        if ($searched_shortcode !== '') {
+            $this->shortcodes = [$searched_shortcode];
+        }
 
-        while ($n_shortcode--) {
-            $shortcode = $this->getShortcode($text, $searched_shortcode);
+        foreach ($this->shortcodes as $shortcode) {
+            $n_shortcode = $this->countShortcode($text, $shortcode);
 
-            // If the word isn't a shortcode
-            if (! in_array($shortcode, $this->shortcodes)) {
-                continue;
+            for ($i = 0; $i < $n_shortcode; $i++) {
+                $config = $this->dynamic_shortcode_conf[$shortcode];
+                $params = $this->getShortcodeParameters($text, $shortcode);
+
+                $matched_config = $this->searchMatchedConfig($params, $config);
+                if (empty($matched_config)) {
+                    continue;
+                }
+
+                $this->castArguments($params, $matched_config['options']);
+                $text = $this->parseTag($text, $shortcode, $params, $matched_config);
             }
-
-            $config = $this->dynamic_shortcode_conf[$shortcode];
-            $params = $this->getShortcodeParameters($text, $shortcode);
-
-            $matched_config = $this->searchMatchedConfig($params, $config);
-            if (empty($matched_config)) {
-                continue;
-            }
-
-            $this->castArguments($params, $matched_config['options']);
-            $text = $this->parseTag($text, $shortcode, $params, $matched_config);
         }
 
         return $text;
     }
 
-    private function countShortcode(string $text)
+    private function countShortcode(string $text, string $shortcode)
     {
-        $pattern = '/\[('.implode('|', $this->shortcodes).')(.*?)\]/s';
-        preg_match_all($pattern, $text, $matches);
-
-        return count($matches[0] ?? []);
-    }
-
-    private function getShortcode(string $text, string $searched_shortcode)
-    {
-        if ($searched_shortcode != '') {
-            return $searched_shortcode;
-        }
-
-        preg_match('/\[([^\s\]]+)/', $text, $matches);
-
-        return $matches[1] ?? null;
+        return substr_count($text, '['.$shortcode);
     }
 
     private function getShortcodeParameters(string $text, string $shortcode)
