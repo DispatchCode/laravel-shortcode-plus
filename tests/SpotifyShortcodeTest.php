@@ -27,5 +27,5 @@ it('can parse spotify shortcode, even if the uri is incorrect', function () {
 it('cannot parse spotify shortcode if the uri is not defined', function () {
     $html = '[spotify]';
     $spotifyOembed = LaravelShortcodePlus::source($html)->parseSpotifyTag();
-    expect($spotifyOembed)->toContain('[spotify]');
+    expect($spotifyOembed)->toContain(config('shortcode-plus.invalid_shortcode_error_message'));
 });

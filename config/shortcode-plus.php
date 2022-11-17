@@ -102,4 +102,5 @@ return [
             ],
         ],
     ],
+    'invalid_shortcode_error_message' => 'Invalid shortcode',
 ];

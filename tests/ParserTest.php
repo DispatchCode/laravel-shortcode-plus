@@ -11,7 +11,9 @@ it('can parse all shortcodes', function () {
 
     $text = 'Shortcodes tests.'.PHP_EOL.
         "[spoiler title='SPOILER1 TITLE']Spoiler content[/spoiler]".PHP_EOL.
+        '[image]'.PHP_EOL.
         "[spoiler][image url='https://upload.wikimedia.org/wikipedia/commons/9/9f/BengalCat_Stella.jpg'][/spoiler]".PHP_EOL.
+        '[image]'.PHP_EOL.
         "[faq title='Faq1 title!']FAQ Content[/faq]".PHP_EOL.
         "[spotify url='https://open.spotify.com/album/1DFixLWuPkv3KT3TnV35m3']".PHP_EOL.
         '[gallery title="This is a custom title" images="'.$images->pluck('id')->implode(',').'"]'.PHP_EOL.
@@ -26,6 +28,8 @@ it('can parse all shortcodes', function () {
         '<div class="shortcode_spoiler">'
     )->and($parsedContent)->toContain(
         '<img class="mx-auto" src="https://upload.wikimedia.org/wikipedia/commons/9/9f/BengalCat_Stella.jpg"'
+    )->and($parsedContent)->toContain(
+        config('shortcode-plus.invalid_shortcode_error_message')
     )->and($parsedContent)->toContain(
         'FAQ Content'
     )->and($parsedContent)->toContain(
@@ -68,5 +72,5 @@ it('does not parse a shortcode without an unmatched config', function () {
     $text = "[image caption='TEST']";
     $parsedContent = LaravelShortcodePlus::source($text)->parseAll();
 
-    expect($parsedContent)->toContain($text);
+    expect($parsedContent)->toContain(config('shortcode-plus.invalid_shortcode_error_message'));
 });

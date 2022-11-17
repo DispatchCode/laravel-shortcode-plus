@@ -13,5 +13,6 @@ it('can parse faq shortcode', function () {
 it('cannot parse faq shortcode if title is missing', function () {
     $html = '[faq]Boh![/faq]';
     $faqOembed = LaravelShortcodePlus::source($html)->parseFaqTag();
-    expect($faqOembed)->toContain('[faq]Boh![/faq]');
+
+    expect($faqOembed)->toContain(config('shortcode-plus.invalid_shortcode_error_message'));
 });

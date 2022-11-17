@@ -17,5 +17,5 @@ it('can parse twitter shortcode, even if the url is incorrect', function () {
 it('cannot parse twitter shortcode if the url is not defined', function () {
     $html = '[twitter]';
     $twitterOembed = LaravelShortcodePlus::source($html)->parseTwitterTag();
-    expect($twitterOembed)->toContain('[twitter]');
+    expect($twitterOembed)->toContain(config('shortcode-plus.invalid_shortcode_error_message'));
 });

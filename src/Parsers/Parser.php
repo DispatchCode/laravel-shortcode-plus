@@ -10,10 +10,13 @@ class Parser
 
     private $shortcodes;
 
+    private $invalid_shortcode_message;
+
     public function __construct()
     {
         $this->dynamic_shortcode_conf = config('shortcode-plus.dynamic_shortcode');
         $this->shortcodes = array_keys($this->dynamic_shortcode_conf);
+        $this->invalid_shortcode_message = config('shortcode-plus.invalid_shortcode_error_message');
     }
 
     public static function parse(string $text, SupportedParser $supportedParser = SupportedParser::ALL)
@@ -39,6 +42,8 @@ class Parser
 
                 $matched_config = $this->searchMatchedConfig($params, $config);
                 if (empty($matched_config)) {
+                    $text = $this->replaceShortcodeWithError($text, $shortcode);
+
                     continue;
                 }
 
@@ -156,5 +161,15 @@ class Parser
             $this->replaceWithContent($shortcode, $params, $content),
             $text
         );
+    }
+
+    private function replaceShortcodeWithError(string $text, string $shortcode)
+    {
+        $search_pattern = '/\[('.$shortcode.')\s?([^\]]*)\]/';
+        if (isset($this->dynamic_shortcode_conf[$shortcode]['type']['content']) && $this->dynamic_shortcode_conf[$shortcode]['type']['content']) {
+            $search_pattern = '/\[('.$shortcode.')\s?([^\]]*)\](.*?)\[\/\1\]/s';
+        }
+
+        return preg_replace($search_pattern, $this->invalid_shortcode_message, $text, 1);
     }
 }

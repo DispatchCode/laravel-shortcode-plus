@@ -19,5 +19,5 @@ it('can parse youtube shortcode, even if the url is incorrect', function () {
 it('cannot parse youtube shortcode if the url is not defined', function () {
     $html = '[youtube]';
     $youtubeOembed = LaravelShortcodePlus::source($html)->parseYoutubeTag();
-    expect($youtubeOembed)->toContain('[youtube]');
+    expect($youtubeOembed)->toContain(config('shortcode-plus.invalid_shortcode_error_message'));
 });
