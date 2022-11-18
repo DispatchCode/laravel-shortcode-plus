@@ -103,12 +103,7 @@ class Parser
 
     private function parseTag(string $text, string $shortcode, array $params, array $matched_config)
     {
-        // Pattern [shortcode (param1="value1")]
-        $search_pattern = '/\[('.$shortcode.')\s?([^\]]*)\]/';
-        if ($matched_config['content']) {
-            // Pattern [shortcode (param1="value1")]content[/shortcode]
-            $search_pattern = '/\[('.$shortcode.')\s?([^\]]*)\](.*?)\[\/\1\]/s';
-        }
+        $search_pattern = $this->getPatternForShortcodeDetection($shortcode, $matched_config);
 
         return $this->parseTagContent($text, $shortcode, $params, $search_pattern);
     }
@@ -155,13 +150,21 @@ class Parser
 
     private function replaceShortcodeWithError(string $text, string $shortcode)
     {
-        $search_pattern = '/\[('.$shortcode.')\s?([^\]]*)\]/';
-        if (isset($this->dynamic_shortcode_conf[$shortcode]['type']['content']) && $this->dynamic_shortcode_conf[$shortcode]['type']['content']) {
-            $search_pattern = '/\[('.$shortcode.')\s?([^\]]*)\](.*?)\[\/\1\]/s';
-        }
+        $search_pattern = $this->getPatternForShortcodeDetection($shortcode);
 
         $this->invalid_shortcode_message = str_replace('{shortcode}', $shortcode, $this->invalid_shortcode_message);
 
         return preg_replace($search_pattern, $this->invalid_shortcode_message, $text, 1);
+    }
+
+    private function getPatternForShortcodeDetection(string $shortcode, array $config = [])
+    {
+        if (empty($config)) {
+            $content = $this->dynamic_shortcode_conf[$shortcode]['type']['content'] ?? false;
+        } else {
+            $content = $config['content'];
+        }
+
+        return $content ? '/\[('.$shortcode.')\s?([^\]]*)\](.*?)\[\/\1\]/s' : '/\[('.$shortcode.')\s?([^\]]*)\]/';
     }
 }
