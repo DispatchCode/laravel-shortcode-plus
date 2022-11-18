@@ -128,26 +128,16 @@ class Parser
 
     public function replaceWithContent(string $shortcode, array $params, string $content = '')
     {
-        switch ($shortcode) {
-            case 'image':
-                return Image::parse($params); // TODO image parser must be updated
-            case 'spoiler':
-                return Spoiler::parse($params, $content);
-            case 'faq':
-                return Faq::parse($params, $content);
-            case 'facebook':
-                return Facebook::parse($params);
-            case 'twitter':
-                return Twitter::parse($params);
-            case 'youtube':
-                return Youtube::parse($params);
-            case 'spotify':
-                return Spotify::parse($params);
-            case 'gallery':
-                return Gallery::parse($params, $content);
-            default:
-                // TODO  throw exception, invalid shortcode
-        }
+        return match ($shortcode) {
+            'image' => Image::parse($params),
+            'spoiler' => Spoiler::parse($params, $content),
+            'faq' => Faq::parse($params, $content),
+            'facebook' => Facebook::parse($params),
+            'twitter' => Twitter::parse($params),
+            'youtube' => Youtube::parse($params),
+            'spotify' => Spotify::parse($params),
+            'gallery' => Gallery::parse($params, $content),
+        };
     }
 
     private function parseTagContent(string $text, string $shortcode, array $params, string $search_pattern)
