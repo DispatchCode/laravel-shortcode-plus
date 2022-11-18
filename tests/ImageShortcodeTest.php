@@ -16,6 +16,17 @@ it('can parse an image shortcode', function () {
     expect($imageOembed)->toContain('src="'.asset('storage/'.$path).'"');
 });
 
+it('parse an image shortcode 2', function () {
+    $image = ShortcodeImage::factory()->create();
+    $id = $image->id;
+    $path = $image->path;
+
+    $text = "[image caption='TEST CAPTION' id='".$id."']";
+    $parsedContent = LaravelShortcodePlus::source($text)->parseAll();
+
+    expect($parsedContent)->toContain('<img class="mx-auto" src="'.asset('storage/'.$path).'"');
+});
+
 it('can parse an image shortcode with custom caption', function () {
     $image = ShortcodeImage::factory()->create();
     $id = $image->id;
