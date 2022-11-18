@@ -170,6 +170,8 @@ class Parser
             $search_pattern = '/\[('.$shortcode.')\s?([^\]]*)\](.*?)\[\/\1\]/s';
         }
 
+        $this->invalid_shortcode_message = str_replace('{shortcode}', $shortcode, $this->invalid_shortcode_message);
+
         return preg_replace($search_pattern, $this->invalid_shortcode_message, $text, 1);
     }
 }

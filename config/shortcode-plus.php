@@ -102,5 +102,12 @@ return [
             ],
         ],
     ],
+
+    /**
+     * If in the error message you want to show the name of the shortcode,
+     * you can use the syntax {shortcode} in the message.
+     *
+     * eg.  "The shortcode {shortcode} is invalid"
+     */
     'invalid_shortcode_error_message' => 'Invalid shortcode',
 ];
